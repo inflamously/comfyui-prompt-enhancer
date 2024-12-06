@@ -20,7 +20,8 @@ class OllamaPromptEnhancer:
         return {
             "required": {
                 "model": (_model_names(),),
-                "text": ("STRING", {"multiline": True, "dynamicPrompts": True, "tooltip": "The text to be encoded."}),
+                "positive_text": ("STRING", {"multiline": True, "dynamicPrompts": True, "tooltip": "The text to be encoded."}),
+                "negative_text": ("STRING", {"multiline": True, "dynamicPrompts": True, "tooltip": "The text to be encoded."}),
                 "clip": ("CLIP", {"tooltip": "The CLIP model used for encoding the text."}),
                 "seed": ("INT", {"default": 0, "min": 0, "max": 0xffffffffffffffff}),
             }
@@ -29,14 +30,15 @@ class OllamaPromptEnhancer:
     RETURN_TYPES = ("CONDITIONING", "CONDITIONING", "CONDITIONING",)
     CATEGORY = "conditioning/advanced"
     FUNCTION = "enhance"
+    RETURN_NAMES = ("POSITIVE_PROMPT", "NEGATIVE_PROMPT", "ORIGINAL_PROMPT")
 
     @classmethod
-    def IS_CHANGED(self, model, text, clip, seed):
+    def IS_CHANGED(self, model, positive_text, negative_text, clip, seed):
         return seed
 
-    def enhance(self, model, text, clip, seed):
-        positive_prefix = "enhance in following format <style and medium>, <additional details>, <image quality>, <subject>, <scenery> the following prompt:"
-        negative_prompt = "describe negative prompt for \"{}\" within 50 words that contains words for <image quality> without repeating original prompt and please in tagged form as \"tag1 tag2..\""
+    def enhance(self, model, positive_text, negative_text, clip, seed):
+        positive_input_prompt = "enhance in following format <style and medium>, <additional details>, <image quality>, <subject>, <scenery> the following prompt: {}".format(positive_text)
+        negative_input_prompt = "generate an enhanced negative prompt from \"{}\" within 50 words that includes low <image quality> tags without repeating original phrase and words are tagged as \"tag1 tag2..\"".format(negative_text)
 
         try:
             ollama_process = subprocess.run("ollama -v", capture_output=True, timeout=30)
@@ -52,14 +54,14 @@ class OllamaPromptEnhancer:
                                    messages=[
                                        Message(
                                            role="user",
-                                           content="{} \"{}\"".format(positive_prefix, text)
+                                           content=positive_input_prompt
                                        )
                                    ])
         negative_res = ollama.chat(model,
                                    messages=[
                                        Message(
                                            role="user",
-                                           content=negative_prompt
+                                           content=negative_input_prompt
                                        )
                                    ])
         positive_prompt = positive_res.message.content
@@ -70,7 +72,7 @@ class OllamaPromptEnhancer:
         enhanced_output = clip.encode_from_tokens(clip.tokenize(positive_prompt), return_pooled=True, return_dict=True)
         neg_enhanced_output = clip.encode_from_tokens(clip.tokenize(negative_prompt), return_pooled=True,
                                                       return_dict=True)
-        output = clip.encode_from_tokens(clip.tokenize(text), return_pooled=True, return_dict=True)
+        output = clip.encode_from_tokens(clip.tokenize(positive_input_prompt), return_pooled=True, return_dict=True)
         return (
             [[enhanced_output.pop("cond"), enhanced_output]],
             [[neg_enhanced_output.pop("cond"), neg_enhanced_output]],

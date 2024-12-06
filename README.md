@@ -6,6 +6,10 @@ A crazy node that pragmatically just enhances a given prompt with various descri
 
 * Simple node, just enter text and go
   * INPUT: CLIP
+  * FIELD: 
+    * model (this is the model liste loaded from ollama)
+    * positive text (llm enhanced from selected model)
+    * negative text (llm enhanced from selected model)
   * OUTPUT:
     * ENHANCED_PROMPT
     * NEGATIVE_PROMPT (atleast what the llm determines, the one selected)
