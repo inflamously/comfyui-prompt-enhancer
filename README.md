@@ -17,7 +17,7 @@ A crazy node that pragmatically just enhances a given prompt with various descri
 
 ## Installation
 You need to have ollama installed from https://ollama.com/ before continue.
-Afterward when within your custom python environment you just either ``pip install -r requirements under custom_nodes\comfyui-prompt-enhancer\requirements.txt`` or when feeling lucky ``pip install ollama-python``
+Afterward when within your custom python environment you just either ``pip install -r requirements under custom_nodes\comfyui-prompt-enhancer\requirements.txt`` or when feeling lucky ``pip install ollama``
 That should be it.
 
 
