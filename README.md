@@ -1,6 +1,6 @@
 ## Ollama Prompt Enhancer
 
-A widly wild node that pragmatically just enhances a given prompt with various descriptions in the hope that the image quality just increase and prompting just gets easier.
+A crazy node that pragmatically just enhances a given prompt with various descriptions in the hope that the image quality just increase and prompting just gets easier.
 
 ## Features:
 
