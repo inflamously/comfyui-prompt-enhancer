@@ -24,10 +24,9 @@ So for example using SD1.5 ~ 5GB VRAM + Mistral:3B uses around 16 GB VRAM (this 
     * ORIGINAL_PROMPT
 
 ## Installation
-You need to have ollama installed from https://ollama.com/ before continue.
-Afterward when within your custom python environment you just either ``pip install -r requirements under custom_nodes\comfyui-prompt-enhancer\requirements.txt`` or when feeling lucky ``pip install ollama``
+You need to have ollama installed from https://ollama.com before continue.<br>
+When within your custom python environment go to the `custom_nodes/comfyui-prompt-enhancer` folder and install via `pip install -r requirements requirements.txt`. <br>If you feeling lucky you can also install via `pip install ollama`
 That should be it.
-
 
 ## Example
 
