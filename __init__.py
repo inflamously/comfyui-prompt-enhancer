@@ -61,7 +61,7 @@ class OllamaPromptEnhancer:
         return seed
 
     def _prompt_build(self, original_positive_text, original_negative_text):
-        positive_enhanced_prompt = "enhance the following prompt {} within 200 words in format with multiple words in each category <subject>, <action>, <style and medium>, <image quality>, <scene>. Exclude meta descriptions and just focus on content".format(
+        positive_enhanced_prompt = "enhance the following prompt {} within 200 words in format with multiple words in each category <subject>, <action>, <style and medium>, <image quality>, <scene>. Exclude meta descriptions and just focus on content. Try to include original text from question asked prompt.".format(
             original_positive_text)
         negative_enhanced_prompt = "generate an enhanced negative prompt from given sentence \"{}\" within 100 words that includes low <image quality>. These tag these words without repeating original phrase. Tagged words must contain following format \"tag1 tag2..\"".format(
             original_negative_text)
