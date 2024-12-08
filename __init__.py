@@ -3,6 +3,7 @@ import subprocess
 import ollama
 from ollama import Message
 from pydantic import BaseModel
+from transformers.models.udop.convert_udop_to_hf import original_transform
 
 
 class Prompt(BaseModel):
@@ -21,6 +22,18 @@ def _list_models() -> list:
 
 def _model_names() -> list[str]:
     return list(map(lambda x: x.model, _list_models()))
+
+
+def _check_ollama_instance_running():
+    try:
+        ollama_process = subprocess.run("ollama -v", capture_output=True, timeout=30)
+        result = ollama_process.stdout.decode("utf-8")
+        if "could not connect to a running Ollama instance" in result:
+            raise Exception("ollama service must be running")
+    except Exception as e:
+        if e is subprocess.TimeoutExpired:
+            raise Exception("ollama could not be found or started")
+        raise Exception("an exception occured {}".format(e))
 
 
 class OllamaPromptEnhancer:
@@ -47,27 +60,19 @@ class OllamaPromptEnhancer:
     def IS_CHANGED(self, model, positive_text, negative_text, clip, seed):
         return seed
 
-    def enhance(self, model, positive_text, negative_text, clip, seed):
-        positive_input_prompt = "enhance the following prompt {} within 200 words in format with multiple words in each category <subject>, <action>, <style and medium>, <image quality>, <scene>. Exclude meta descriptions and just focus on the content".format(
-            positive_text)
-        negative_input_prompt = "generate an enhanced negative prompt from \"{}\" within 50 words that includes low <image quality> tags without repeating original phrase and words are tagged as \"tag1 tag2..\"".format(
-            negative_text)
+    def _prompt_build(self, original_positive_text, original_negative_text):
+        positive_enhanced_prompt = "enhance the following prompt {} within 200 words in format with multiple words in each category <subject>, <action>, <style and medium>, <image quality>, <scene>. Exclude meta descriptions and just focus on content".format(
+            original_positive_text)
+        negative_enhanced_prompt = "generate an enhanced negative prompt from given sentence \"{}\" within 100 words that includes low <image quality>. These tag these words without repeating original phrase. Tagged words must contain following format \"tag1 tag2..\"".format(
+            original_negative_text)
+        return positive_enhanced_prompt, negative_enhanced_prompt
 
-        try:
-            ollama_process = subprocess.run("ollama -v", capture_output=True, timeout=30)
-            result = ollama_process.stdout.decode("utf-8")
-            if "could not connect to a running Ollama instance" in result:
-                raise Exception("ollama service must be running")
-        except Exception as e:
-            if e is subprocess.TimeoutExpired:
-                raise Exception("ollama could not be found or started")
-            raise Exception("an exception occured {}".format(e))
-
+    def _chat(self, model, original_positive_text, original_negative_text, positive_input_prompt, negative_input_prompt):
         positive_res = ollama.chat(model,
                                    messages=[
                                        Message(
                                            role="user",
-                                           content="{}, {}".format(positive_text, positive_input_prompt),
+                                           content=positive_input_prompt,
                                        )
                                    ],
                                    format=Prompt.model_json_schema())
@@ -79,13 +84,22 @@ class OllamaPromptEnhancer:
                                        )
                                    ],
                                    format=Prompt.model_json_schema())
-        positive_prompt_model = Prompt.model_validate_json(positive_res.message.content)
+        return positive_res, negative_res
+
+    def enhance(self, model, positive_text, negative_text, clip, seed):
+        _check_ollama_instance_running()
+
+        positive_input_prompt, negative_input_prompt = self._prompt_build(positive_text, negative_text)
+        response_positive, response_negative = self._chat(model, positive_text, negative_text, positive_input_prompt, negative_input_prompt)
+
+        positive_prompt_model = Prompt.model_validate_json(response_positive.message.content)
         positive_prompt = "{} does {} within {} containing {}. Type of image {}".format(positive_prompt_model.subject, positive_prompt_model.action, positive_prompt_model.scene, positive_prompt_model.medium_or_style, positive_prompt_model.image_quality)
         print("positive prompt received:\n\n{}\n\n".format(positive_prompt))
-        negative_prompt_model = Prompt.model_validate_json(negative_res.message.content)
+
+        negative_prompt_model = Prompt.model_validate_json(response_negative.message.content)
         negative_prompt = "{} does {} within {} containing {}. Type of image {}".format(negative_prompt_model.subject, negative_prompt_model.action, negative_prompt_model.scene, negative_prompt_model.medium_or_style, negative_prompt_model.image_quality)
         print("negative prompt received:\n\n{}\n\n".format(negative_prompt))
-        # TODO: Output
+
         enhanced_output = clip.encode_from_tokens(clip.tokenize(positive_prompt), return_pooled=True, return_dict=True)
         neg_enhanced_output = clip.encode_from_tokens(clip.tokenize(negative_prompt), return_pooled=True,
                                                       return_dict=True)
