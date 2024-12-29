@@ -1,0 +1,15 @@
+[project]
+name = "comfyui-prompt-enhancer"
+description = "A crazy node that pragmatically just enhances a given prompt with various descriptions in the hope that the image quality just increase and prompting just gets easier."
+version = "1.0.0"
+license = {file = "LICENSE"}
+dependencies = ["ollama==0.4.2"]
+
+[project.urls]
+Repository = "https://github.com/inflamously/comfyui-prompt-enhancer"
+#  Used by Comfy Registry https://comfyregistry.org
+
+[tool.comfy]
+PublisherId = ""
+DisplayName = "comfyui-prompt-enhancer"
+Icon = ""
