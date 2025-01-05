@@ -4,9 +4,9 @@ import ollama
 from ollama import Message
 from pydantic import BaseModel, Field
 
-
+# TODO: Test >350 chars
 class PositivePrompt(BaseModel):
-    subject: str = Field(max_length=100, min_length=1)
+    subject: str = Field(max_length=150, min_length=1)
     medium: str = Field(max_length=20, min_length=1)
     style: str = Field(max_length=40, min_length=1)
     art_sharing_website: str = Field(max_length=10, min_length=1)
@@ -14,7 +14,7 @@ class PositivePrompt(BaseModel):
     additional_details: str = Field(max_length=80, min_length=1)
     color: str = Field(max_length=20, min_length=1)
     lighting: str = Field(max_length=20, min_length=1)
-    composition: str = Field(max_length=40, min_length=1)
+    composition: str = Field(max_length=80, min_length=1)
 
 class NegativePrompt(BaseModel):
     negative_quality_tags: str = Field(max_length=175, min_length=1)
