@@ -106,17 +106,17 @@ class OllamaPromptEnhancer:
 
         positive_prompt_result = PositivePrompt.model_validate_json(response_positive.message.content)
         positive_prompt = """
-        Created in {} with a {}, shared on {}. The artwork features {}, {}, {}, {}, and a {}. A {}. 
+        Created in {} with a {}, shared on {}. The artwork features {}, {}, {}, and a {}, {}, {}.
         """.format(
             positive_prompt_result.medium,
             positive_prompt_result.style,
             positive_prompt_result.art_sharing_website,
             positive_prompt_result.resolution,
-            positive_prompt_result.additional_details,
             positive_prompt_result.color,
             positive_prompt_result.lighting,
             positive_prompt_result.composition,
             positive_prompt_result.subject,
+            positive_prompt_result.additional_details,
         )
         print("positive prompt received:\n{}\n\n".format(positive_prompt))
 
