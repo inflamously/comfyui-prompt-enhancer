@@ -38,7 +38,7 @@ class OllamaChainCategory(str, Enum):
     STYLE = "style",
     ART_WEBSITE = "art_sharing_website",
     RESOLUTION = "resolution",
-    ADDITIONAL_DETAILS = "additional_details",
+    #ADDITIONAL_DETAILS = "additional_details",
     COLOR_DETAILS = "color",
     LIGHTING = "lighting",
     COMPOSITION = "composition",

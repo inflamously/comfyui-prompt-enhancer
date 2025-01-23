@@ -3,51 +3,53 @@ from pydantic import Field, BaseModel
 
 from comfy.comfy_types import IO
 from .categories import CHAIN_NODE_CATEGORIES, CHAIN_NODE_TOOLTIP
-from .prompt import build_chain_prompt_subject, build_chain_prompt
+from .prompt import build_chain_prompt_subject, build_chain_prompt, build_context_prompt
 from ..ollama_facade.instance import check_ollama_instance_running
 from ..ollama_facade.model import model_names
 
 
 class ChainPrompt(BaseModel):
-    description: str = Field(max_length=50, min_length=1)
+    description: str = Field(max_length=50, min_length=5)
 
 
-def _chain(model, category, keyword, prompt, encoder_type):
+def _chain(model, category, keywords, prompt):
     check_ollama_instance_running()
 
-    if prompt and encoder_type:
-        input_prompt = build_chain_prompt(category, encoder_type)
-    elif keyword:
-        input_prompt = build_chain_prompt_subject(category, keyword)
+    previous_prompt = None
+    if keywords:
+        input_prompt = build_chain_prompt_subject(category, keywords)
     else:
-        raise Exception("invalid chain, either subject (OllamaChainSubject) or prompt (OllamaChain) missing")
+        previous_prompt = build_context_prompt(prompt)
+        input_prompt = build_chain_prompt(category)
 
     raw_response = ollama.chat(
         model=model,
-        messages=[input_prompt],
+        messages=[previous_prompt, input_prompt] if previous_prompt else [input_prompt],
         format=ChainPrompt.model_json_schema())
 
     json_response = ChainPrompt.model_validate_json(raw_response.message.content)
 
-    final_prompt = ("{}, {}".format(prompt if prompt else '', json_response.description),)
+    final_prompt = (
+    "{}, {}, {}".format(keywords if keywords else '', prompt if prompt else '', json_response.description),)
 
     print(final_prompt)
 
     return final_prompt
 
 
-class OllamaChainSubject:
+class OllamaChainControl:
     @classmethod
     def INPUT_TYPES(self):
         return {
             "required": {
                 "model": (model_names(),),
                 "category": (CHAIN_NODE_CATEGORIES,),
-                "subject": (
+                "keywords": (
                     "STRING", {"multiline": True, "dynamicPrompts": False, "tooltip": "Subject for image generation"}),
             },
             "optional": {
-                "encoder_type": (["clip", "t5"], {"default": "clip"}),
+                "prompt": (
+                    "STRING", {"multiline": True, "dynamicPrompts": True, "tooltip": "Prompt attribute"}),
                 "seed": ("INT", {"default": 0, "min": 0, "max": 0xFFFFFFFFFFFFFFFF}),
             }
         }
@@ -59,14 +61,14 @@ class OllamaChainSubject:
     RETURN_NAMES = ("TEXT",)
 
     @classmethod
-    def IS_CHANGED(self, model, category, subject, encoder_type, seed):
+    def IS_CHANGED(self, model, category, keywords, prompt, seed):
         return seed
 
-    def prompt(self, model, category, subject, encoder_type, seed):
-        return _chain(model, category, subject, None, encoder_type)
+    def prompt(self, model, category, keywords, prompt, seed):
+        return _chain(model, category, keywords, prompt)
 
 
-class OllamaChain:
+class OllamaChainRandom:
     @classmethod
     def INPUT_TYPES(self):
         return {
@@ -77,7 +79,6 @@ class OllamaChain:
             "optional": {
                 "prompt": (
                     "STRING", {"multiline": True, "dynamicPrompts": True, "tooltip": "Prompt attribute"}),
-                "encoder_type": (["clip", "t5"], {"default": "clip"}),
                 "seed": ("INT", {"default": 0, "min": 0, "max": 0xFFFFFFFFFFFFFFFF}),
             }
         }
@@ -89,8 +90,8 @@ class OllamaChain:
     RETURN_NAMES = ("TEXT",)
 
     @classmethod
-    def IS_CHANGED(self, model, category, prompt, encoder_type, seed):
+    def IS_CHANGED(self, model, category, prompt, seed):
         return seed
 
-    def prompt(self, model, category, prompt, encoder_type, seed):
-        return _chain(model, category, None, prompt, encoder_type)
+    def prompt(self, model, category, prompt, seed):
+        return _chain(model, category, None, prompt)
