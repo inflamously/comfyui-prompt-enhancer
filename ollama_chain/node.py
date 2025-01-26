@@ -13,8 +13,6 @@ class ChainPrompt(BaseModel):
 
 
 def _chain(model, category, keywords, prompt):
-    check_ollama_instance_running()
-
     previous_prompt = None
     if keywords:
         input_prompt = build_chain_prompt_subject(category, keywords)
@@ -40,9 +38,13 @@ def _chain(model, category, keywords, prompt):
 class OllamaChainControl:
     @classmethod
     def INPUT_TYPES(self):
+        models = []
+        if check_ollama_instance_running():
+            models = [*model_names()]
+
         return {
             "required": {
-                "model": (model_names(),),
+                "model": (models,),
                 "category": (CHAIN_NODE_CATEGORIES,),
                 "keywords": (
                     "STRING", {"multiline": True, "dynamicPrompts": False, "tooltip": "Subject for image generation"}),
@@ -71,9 +73,13 @@ class OllamaChainControl:
 class OllamaChainRandom:
     @classmethod
     def INPUT_TYPES(self):
+        models = []
+        if check_ollama_instance_running():
+            models = [*model_names()]
+
         return {
             "required": {
-                "model": (model_names(),),
+                "model": (models,),
                 "category": (CHAIN_NODE_CATEGORIES[1:],),
             },
             "optional": {

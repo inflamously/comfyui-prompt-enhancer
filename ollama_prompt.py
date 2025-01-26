@@ -28,9 +28,13 @@ class NegativePrompt(BaseModel):
 class OllamaPromptEnhancer:
     @classmethod
     def INPUT_TYPES(self):
+        models = []
+        if check_ollama_instance_running():
+            models = [*model_names()]
+
         return {
             "required": {
-                "model": (model_names(),),
+                "model": (models,),
                 "positive_text": (
                     "STRING", {"multiline": True, "dynamicPrompts": True, "tooltip": "The text to be encoded."}),
                 "negative_text": (
@@ -82,8 +86,6 @@ class OllamaPromptEnhancer:
         return positive_res, negative_res
 
     def enhance(self, model, positive_text, negative_text, clip, seed):
-        check_ollama_instance_running()
-
         positive_input_prompt, negative_input_prompt = self._prompt_build(positive_text, negative_text)
         response_positive, response_negative = self._chat(model, positive_text, negative_text, positive_input_prompt,
                                                           negative_input_prompt)
