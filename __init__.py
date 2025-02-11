@@ -1,10 +1,12 @@
 from .ollama_chain.node import OllamaChainRandom, OllamaChainControl
 from .ollama_prompt import OllamaPromptEnhancer
+from .reprompt.reprompt import Reprompt
 
 NODE_CLASS_MAPPINGS = {
     "PROMPT_ENHANCER": OllamaPromptEnhancer,
     "PROMPT_ENHANCER_CHAIN_RANDOM": OllamaChainRandom,
-    "PROMPT_ENHANCER_CHAIN_CONTROL": OllamaChainControl
+    "PROMPT_ENHANCER_CHAIN_CONTROL": OllamaChainControl,
+    "PROMPT_ENHANCER_REPROMPT": Reprompt,
 }
 NODE_DISPLAY_NAME_MAPPINGS = {
     "PROMPT_ENHANCER": "Ollama Prompt Enhancer",

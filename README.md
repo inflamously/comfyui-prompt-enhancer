@@ -1,6 +1,19 @@
 ## Ollama Prompt Enhancer
 
-A crazy node that pragmatically just enhances a given prompt with various descriptions in the hope that the image quality just increase and prompting just gets easier.
+A crazy nodes that pragmatically just enhances experience on prompting with various descriptions in the hope that the image quality just increases and prompting gets easier.
+
+## Nodes Available
+
+**PROMPT_ENHANCER:**<br>
+Basic prompt enhancing based on a sentence that contains SD15 preferred prompting style.<br>
+See code for prompt to LLM.
+
+**PROMPT_ENHANCER_CHAIN_RANDOM & PROMPT_ENHANCER_CHAIN_CONTROL:**<br>
+Make a chain of dynamic LLM prompting using various categories
+
+**PROMPT_ENHANCER_REPROMPT:**<br>
+Use multiple prompts in a multiline textedit separated per newline (`\n`) using ComfyUI's "Queue (Instant)" to generate images per prompt line<br>
+until list of prompts exhausted and exception occurs to tell the user to change the multiline prompt. (For now until better idea)
 
 ## Hints
 This node requires an N-th amount of VRAM based on loaded LLM on top of stable diffusion or flux. <br>

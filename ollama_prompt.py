@@ -28,10 +28,8 @@ class NegativePrompt(BaseModel):
 class OllamaPromptEnhancer:
     @classmethod
     def INPUT_TYPES(self):
-        models = []
-        if check_ollama_instance_running():
-            models = [*model_names()]
-
+        check_ollama_instance_running()
+        models = [*model_names()]
         return {
             "required": {
                 "model": (models,),

@@ -8,4 +8,6 @@ def list_models() -> list:
 
 
 def model_names() -> list[str]:
-    return list(map(lambda x: x.model, list_models()))
+    models = list(map(lambda x: x.model, list_models()))
+    print("models loaded", models)
+    return models
