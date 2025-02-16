@@ -1,5 +1,6 @@
 from .ollama_chain.node import OllamaChainRandom, OllamaChainControl
 from .ollama_prompt import OllamaPromptEnhancer
+from .prompt_image_saver.prompt_image_saver import PromptImageSave
 from .reprompt.reprompt import Reprompt
 
 NODE_CLASS_MAPPINGS = {
