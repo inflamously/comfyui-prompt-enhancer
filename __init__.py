@@ -1,5 +1,5 @@
 from .ollama_chain.node import OllamaChainRandom, OllamaChainControl
-from .ollama_prompt import OllamaPromptEnhancer
+from .ollama_prompt import OllamaPromptEnhancer, WEB_DIRECTORY
 from .prompt_image_saver.prompt_image_saver import PromptImageSave
 from .reprompt.reprompt import Reprompt
 
@@ -14,3 +14,5 @@ NODE_DISPLAY_NAME_MAPPINGS = {
     "PROMPT_ENHANCER_CHAIN_RANDOM": "Ollama Chain Random",
     "PROMPT_ENHANCER_CHAIN_CONTROL": "Ollama Chain Image Control"
 }
+
+__all__ = ["NODE_CLASS_MAPPINGS", "NODE_DISPLAY_NAME_MAPPINGS", "WEB_DIRECTORY"]

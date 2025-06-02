@@ -109,3 +109,6 @@ class OllamaPromptEnhancer:
             [[enhanced_output.pop("cond"), enhanced_output]],
             [[neg_enhanced_output.pop("cond"), neg_enhanced_output]],
             [[output.pop("cond"), output]],)
+
+# Define the web directory for custom UI
+WEB_DIRECTORY = "./ui"
